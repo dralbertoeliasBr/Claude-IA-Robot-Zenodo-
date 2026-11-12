@@ -1,0 +1,63 @@
+# Robô Zenodo v1 — conceito: Sounavy | engenharia: Claude (12/11/2026)
+# Duas etapas separadas, sempre iniciadas por você no app do GitHub (Actions > Robô Zenodo > Run workflow):
+#   1) rascunho: cria o depósito e sobe os arquivos da pasta publicar/. NÃO publica.
+#   2) publicar: você revisa o rascunho no Zenodo, copia o id e roda de novo com etapa=publicar.
+#      Este passo usa o environment "ok-do-sounavy" (aprovação extra, se o plano permitir).
+# Segredos (Settings > Secrets and variables > Actions):
+#   ZENODO_SANDBOX_TOKEN  -> token do sandbox.zenodo.org (treino)
+#   ZENODO_TOKEN          -> token do zenodo.org (real)
+name: Robô Zenodo
+
+on:
+  workflow_dispatch:
+    inputs:
+      etapa:
+        description: "rascunho, publicar ou listar"
+        required: true
+        default: rascunho
+        type: choice
+        options: [rascunho, publicar, listar]
+      modo:
+        description: "sandbox (treino) ou real"
+        required: true
+        default: sandbox
+        type: choice
+        options: [sandbox, real]
+      deposito_id:
+        description: "Só para publicar: id do rascunho que você revisou"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  rascunho:
+    if: inputs.etapa == 'rascunho' || inputs.etapa == 'listar'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ensaio (confere antes de enviar)
+        if: inputs.etapa == 'rascunho'
+        run: python3 robo_zenodo.py ensaio
+        env:
+          ZENODO_MODO: ${{ inputs.modo }}
+      - name: Rascunho ou lista
+        run: python3 robo_zenodo.py ${{ inputs.etapa }}
+        env:
+          ZENODO_MODO: ${{ inputs.modo }}
+          ZENODO_TOKEN: ${{ inputs.modo == 'real' && secrets.ZENODO_TOKEN || secrets.ZENODO_SANDBOX_TOKEN }}
+
+  publicar:
+    if: inputs.etapa == 'publicar'
+    runs-on: ubuntu-latest
+    environment: ok-do-sounavy
+    steps:
+      - uses: actions/checkout@v4
+      - name: Publicar (OK do Sounavy)
+        run: python3 robo_zenodo.py publicar "$DEPOSITO_ID"
+        env:
+          DEPOSITO_ID: ${{ inputs.deposito_id }}
+          OK_DO_SOUNAVY: sim
+          ZENODO_MODO: ${{ inputs.modo }}
+          ZENODO_TOKEN: ${{ inputs.modo == 'real' && secrets.ZENODO_TOKEN || secrets.ZENODO_SANDBOX_TOKEN }}

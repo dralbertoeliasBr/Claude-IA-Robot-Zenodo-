@@ -1,0 +1,2 @@
+Arquivo de exemplo do Robô Zenodo v1.
+Para usar de verdade: copie esta pasta para "publicar/", troque os arquivos e o metadados.json.

@@ -1,0 +1,12 @@
+{
+  "title": "Teste do Robô Zenodo (Sandbox)",
+  "upload_type": "other",
+  "description": "Depósito de treino criado pelo Robô Zenodo v1. Conceito: Sounavy. Engenharia: Claude.",
+  "creators": [
+    {"name": "Elias, Antônio Alberto Lopes", "orcid": "0000-0002-5602-9916"}
+  ],
+  "license": "cc-by-4.0",
+  "access_right": "open",
+  "language": "por",
+  "keywords": ["Sounavy", "GaIA", "teste"]
+}
