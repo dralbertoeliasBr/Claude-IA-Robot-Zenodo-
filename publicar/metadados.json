@@ -1,0 +1,17 @@
+{
+  "title": "SOUNAVY v2.0 — Borda, licenciamento justo e participação no valor dos dados de saúde / Edge, Fair Licensing, and Participation in the Value of Health Data",
+  "upload_type": "publication",
+  "publication_type": "report",
+  "version": "1.2",
+  "language": "por",
+  "access_right": "open",
+  "license": "cc-by-4.0",
+  "creators": [
+    {"name": "Elias, Antônio Alberto Lopes", "orcid": "0000-0002-5602-9916"}
+  ],
+  "description": "<p><strong>PT —</strong> Proposta conceitual humanista de arquitetura federada e governança de dados de saúde. Defende que hospitais, clínicas, convênios, laboratórios, governos, universidades, empresas de tecnologia e data centers continuem participando, mas que custódia ou infraestrutura não equivalham a autorização irrestrita de uso secundário. A borda pessoal oferece uma via para escolhas e licenças específicas, com auditoria, portabilidade e possibilidade de retorno individual ou coletivo. Renda de borda é uma proposta, não um direito automático afirmado pela legislação vigente. As alegações técnicas e econômicas requerem validação independente.</p><p><strong>EN —</strong> A human-centered conceptual proposal for federated health-data architecture and governance. It recognizes the continued role of hospitals, clinics, health plans, laboratories, governments, universities, technology companies, and data centers, while distinguishing custody or infrastructure from unrestricted permission for secondary use. The personal edge provides a channel for specific choices and licenses, with auditing, portability, and potential individual or collective returns. Edge income is a proposal, not an automatic right asserted under current law. Technical and economic claims require independent validation.</p><p>Conceito e proposta / Concept and proposal: Sounavy (Antônio Alberto Lopes Elias). Redação e organização editorial assistidas por ChatGPT (OpenAI), ferramenta de apoio, não autora humana / Editorial assistance: ChatGPT (OpenAI), a writing-support tool, not a human author. A licença CC BY 4.0 cobre o texto, não dados pessoais / CC BY 4.0 covers the text, not personal data.</p>",
+  "keywords": ["SOUNAVY", "dados de saúde", "health data", "soberania na borda", "edge sovereignty", "renda de borda", "edge income", "licenciamento de dados", "data licensing", "arquitetura federada", "federated architecture", "interoperabilidade", "governança", "uso secundário", "secondary use"],
+  "related_identifiers": [
+    {"identifier": "https://github.com/dralbertoeliasBr/sounavy-whitepaper", "relation": "isSupplementedBy", "resource_type": "publication"}
+  ]
+}
