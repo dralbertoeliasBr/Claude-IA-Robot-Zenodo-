@@ -7,6 +7,9 @@
 #   rascunho          cria um depósito em RASCUNHO e sobe os arquivos. Não publica.
 #   publicar <id>     publica um rascunho. Só roda com OK_DO_SOUNAVY=sim.
 #   listar            lista seus depósitos (título, estado, licença, DOI). Só leitura.
+#   ver <id>          mostra os detalhes de um depósito. Só leitura.
+#   baixar <id>       exporta metadados + arquivos de um depósito para exportado/<id>/. Só leitura.
+#   nova-versao <id>  abre um RASCUNHO de nova versão de um registro publicado. Não publica.
 #
 # Modo: SANDBOX (treino) por padrão. Só usa o Zenodo real com ZENODO_MODO=real.
 # Token: vem da variável de ambiente ZENODO_TOKEN (Secret do GitHub). Nunca escrito em arquivo.
@@ -163,6 +166,65 @@ def cmd_listar():
         pagina += 1
 
 
+def ver_deposito(dep_id):
+    if not str(dep_id).isdigit():
+        sys.exit("ERRO: id inválido: %r" % dep_id)
+    return pedir("GET", "%s/deposit/depositions/%s" % (base(), dep_id))
+
+
+def cmd_ver(dep_id):
+    print("Modo: " + nome_modo())
+    d = ver_deposito(dep_id)
+    md = d.get("metadata", {})
+    lic = md.get("license", "")
+    if isinstance(lic, dict):
+        lic = lic.get("id", "")
+    print("id: %s | estado: %s | publicado: %s" % (d.get("id"), d.get("state"), d.get("submitted")))
+    print("Título: " + md.get("title", ""))
+    print("Versão: %s | Licença: %s" % (md.get("version", "-"), lic or "?"))
+    print("Autores: " + "; ".join(c.get("name", "?") for c in md.get("creators", [])))
+    print("DOI: " + (d.get("doi") or md.get("prereserve_doi", {}).get("doi", "-") + " (reservado)"))
+    for f in d.get("files", []):
+        print("Arquivo: %s (%s bytes)" % (f.get("filename"), f.get("filesize")))
+    print("Link: " + d.get("links", {}).get("html", ""))
+
+
+def cmd_baixar(dep_id):
+    print("Modo: " + nome_modo())
+    d = ver_deposito(dep_id)
+    destino = os.path.join("exportado", str(dep_id))
+    os.makedirs(destino, exist_ok=True)
+    with open(os.path.join(destino, "deposito.json"), "w", encoding="utf-8") as f:
+        json.dump(d, f, ensure_ascii=False, indent=2)
+    print("Salvo: %s/deposito.json" % destino)
+    for f in d.get("files", []):
+        nome = os.path.basename(f.get("filename", ""))
+        url = f.get("links", {}).get("download")
+        if not nome or not url:
+            continue
+        req = urllib.request.Request(url)
+        req.add_header("Authorization", "Bearer " + token())
+        try:
+            with urllib.request.urlopen(req, timeout=300) as r, open(os.path.join(destino, nome), "wb") as out:
+                out.write(r.read())
+        except urllib.error.HTTPError as e:
+            sys.exit("ERRO ao baixar %s: %s" % (nome, e.code))
+        print("Baixado: %s/%s" % (destino, nome))
+    print("EXPORTAÇÃO PRONTA. Nada foi alterado no Zenodo.")
+
+
+def cmd_nova_versao(dep_id):
+    print("Modo: " + nome_modo())
+    d = ver_deposito(dep_id)
+    if not d.get("submitted"):
+        sys.exit("ERRO: o %s ainda é rascunho; edite-o direto, não precisa de nova versão." % dep_id)
+    r = pedir("POST", "%s/deposit/depositions/%s/actions/newversion" % (base(), dep_id))
+    novo = r.get("links", {}).get("latest_draft", "").rstrip("/").rsplit("/", 1)[-1]
+    print("Rascunho de NOVA VERSÃO criado: id %s" % novo)
+    print("Os arquivos antigos foram copiados para o rascunho. Nada publicado.")
+    saida_github("deposito_id", novo)
+
+
 def main():
     if len(sys.argv) < 2:
         sys.exit(__doc__ or "Uso: robo_zenodo.py ensaio|rascunho|publicar <id>|listar")
@@ -177,8 +239,12 @@ def main():
         cmd_publicar(sys.argv[2])
     elif c == "listar":
         cmd_listar()
+    elif c in ("ver", "baixar", "nova-versao"):
+        if len(sys.argv) < 3:
+            sys.exit("ERRO: diga o id: robo_zenodo.py %s <id>" % c)
+        {"ver": cmd_ver, "baixar": cmd_baixar, "nova-versao": cmd_nova_versao}[c](sys.argv[2])
     else:
-        sys.exit("Comando desconhecido: %s (use ensaio, rascunho, publicar ou listar)" % c)
+        sys.exit("Comando desconhecido: %s (use ensaio, rascunho, publicar, listar, ver, baixar ou nova-versao)" % c)
 
 
 if __name__ == "__main__":

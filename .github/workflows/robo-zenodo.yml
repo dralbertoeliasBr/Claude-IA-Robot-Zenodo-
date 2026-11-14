@@ -12,11 +12,11 @@ on:
   workflow_dispatch:
     inputs:
       etapa:
-        description: "rascunho, publicar ou listar"
+        description: "rascunho, publicar, listar, ver, nova-versao"
         required: true
         default: rascunho
         type: choice
-        options: [rascunho, publicar, listar]
+        options: [rascunho, publicar, listar, ver, nova-versao]
       modo:
         description: "sandbox (treino) ou real"
         required: true
@@ -24,7 +24,7 @@ on:
         type: choice
         options: [sandbox, real]
       deposito_id:
-        description: "Só para publicar: id do rascunho que você revisou"
+        description: "id do depósito (para publicar, ver ou nova-versao)"
         required: false
         default: ""
 
@@ -33,7 +33,7 @@ permissions:
 
 jobs:
   rascunho:
-    if: inputs.etapa == 'rascunho' || inputs.etapa == 'listar'
+    if: inputs.etapa != 'publicar'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -42,9 +42,11 @@ jobs:
         run: python3 robo_zenodo.py ensaio
         env:
           ZENODO_MODO: ${{ inputs.modo }}
-      - name: Rascunho ou lista
-        run: python3 robo_zenodo.py ${{ inputs.etapa }}
+      - name: Rodar etapa
+        run: python3 robo_zenodo.py "$ETAPA" $DEPOSITO_ID
         env:
+          ETAPA: ${{ inputs.etapa }}
+          DEPOSITO_ID: ${{ inputs.etapa != 'rascunho' && inputs.etapa != 'listar' && inputs.deposito_id || '' }}
           ZENODO_MODO: ${{ inputs.modo }}
           ZENODO_TOKEN: ${{ inputs.modo == 'real' && secrets.ZENODO_TOKEN || secrets.ZENODO_SANDBOX_TOKEN }}
 

@@ -17,6 +17,9 @@ Engenharia: **Claude** (12/11/2026).
 | `rascunho` | cria o depósito e sobe os arquivos | não |
 | `publicar <id>` | publica o rascunho revisado; exige `OK_DO_SOUNAVY=sim` | sim |
 | `listar` | lista seus depósitos com licença e DOI | não (só leitura) |
+| `ver <id>` | mostra detalhes de um depósito | não (só leitura) |
+| `baixar <id>` | exporta metadados e arquivos para `exportado/<id>/` | não (só leitura) |
+| `nova-versao <id>` | abre rascunho de nova versão de um registro publicado | não |
 
 - Modo padrão: **SANDBOX (treino)**. O real só com `ZENODO_MODO=real`.
 - Licença padrão: **CC BY 4.0** (`cc-by-4.0`), se o `metadados.json` não disser outra.
